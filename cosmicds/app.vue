@@ -4,7 +4,7 @@
       app
       color="primary"
       dark
-      src="https://cdn.eso.org/images/screen/eso1738b.jpg"
+      src="https://www.astropix.org/archive/esahubble/heic1518b/esahubble_heic1518b_1600.jpg"
       clipped-right
       flat
       height="72"
@@ -13,7 +13,7 @@
       <template v-slot:img="{ props }">
         <v-img
           v-bind="props"
-          gradient="to top right, rgba(1, 87, 155, .7), rgba(0, 0, 0, .5)"
+          gradient="to top right, rgba(25, 71, 161, .2), rgba(8, 47, 104, .9)"
         ></v-img>
       </template>
 
@@ -26,6 +26,34 @@
       <v-toolbar-title>Cosmic Data Stories</v-toolbar-title>
 
       <v-spacer></v-spacer>
+      <v-tooltip
+        bottom
+      >
+        <template
+          v-slot:activator="{ on, attrs }"
+        >
+          <v-menu
+            v-model="speech_menu"
+            :close-on-content-click="false"
+            offset-y
+          >
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon
+                v-bind:value="[props, attrs]"
+                v-on="on"
+                @click="speech_menu = !speech_menu"
+              >
+                <v-icon>mdi-voice</v-icon>
+              </v-btn>
+            </template>
+            <speech-settings
+              :state="app_state"
+            />
+          </v-menu>
+        </template>
+        Adjust speech settings
+      </v-tooltip>
       <v-tooltip
         bottom
       >
@@ -50,6 +78,7 @@
         color="green"
         outlined
         class="mx-2"
+        style="background-color:#000A!important;"
       >
         <span
           class="white--text mr-2"
@@ -88,7 +117,7 @@
               class="mr-3"
             >
               <v-avatar
-                color="info lighten-1"
+                color="warning"
               >
                 <v-icon dark>mdi-account-circle</v-icon>
               </v-avatar>
@@ -194,11 +223,11 @@
         <v-container fluid>
           <v-tabs-items v-model="story_state.stage_index">
             <v-tab-item
-                v-for="(stage, key, index) in story_state.stages"
-                :key="index"
+              v-for="(stage, key, index) in story_state.stages"
+              :key="index"
             >
               <v-card flat>
-                <v-card-title>{{ stage.title }}</v-card-title>
+                <v-card-title style="display: none;">{{ stage.title }}</v-card-title>
                 <jupyter-widget :widget="stage.model_id"/>
               </v-card>
             </v-tab-item>
@@ -303,7 +332,7 @@ export default {
 
     // Colors that seem to work consistently are in Section "4.3. Colors via svgnames option," pg 42 of this doc: https://ctan.math.washington.edu/tex-archive/macros/latex/contrib/xcolor/xcolor.pdf
     window.MathJax = {
-      loader: {load: ['[tex]/color', '[tex]/bbox']},
+      loader: {load: ['[tex]/color', '[tex]/bbox', 'a11y/semantic-enrich']},
       tex: {
         packages: {'[+]': ['input', 'color', 'bbox']},
         color: {
@@ -346,7 +375,20 @@ export default {
 
           MathJax.startup.defaultReady();
         }
-      }, 
+      },
+      options: {
+        menuOptions: {
+          settings: {
+            assistiveMml: true
+          }
+        },
+        a11y: {
+          speech: true,
+          sre: {
+            speech: 'deep'
+          }
+        }
+      }
     };
 
     // Grab MathJax itself
@@ -557,6 +599,20 @@ td.text-start {
   padding: 8px 16px!important;
 }
 
+.v-navigation-drawer .v-list-item--active.theme--light .v-list-item__content {
+  color: black;
+  z-index: 1;
+}
+
+.v-navigation-drawer .v-list-item--active.theme--dark .v-list-item__content {
+  color: white;
+  z-index: 1;
+}
+
+.v-window .v-toolbar {
+  border-bottom: solid 1px black!important;
+}
+
 .v-card__text {
   font-size: 1rem !important;
 }
@@ -567,6 +623,16 @@ td.text-start {
 
 .v-navigation-drawer .v-list-item__action {
   margin: 12px 12px 12px 0px !important;
+}
+
+label.v-label--active div {
+  color: white!important;
+  font-weight: bold;
+}
+
+textarea {
+  font-size: 1.2em!important;
+  color: #FFF8E1!important;
 }
 
 .jp-Notebook,

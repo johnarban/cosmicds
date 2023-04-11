@@ -1,5 +1,6 @@
 from bqplot.marks import Lines, Scatter
 from bqplot_image_gl.interacts import MouseInteraction, mouse_events
+from echo import CallbackProperty
 from glue.config import viewer_tool
 from glue_jupyter.bqplot.common.tools import InteractCheckableTool
 from traitlets import Unicode, HasTraits
@@ -9,11 +10,15 @@ class LineDrawTool(InteractCheckableTool, HasTraits):
 
     tool_id = 'cds:linedraw'
     action_text = 'Draw line'
-    tool_tip = Unicode('Draw a trend line').tag(sync=True)
+    draw_tool_tip = 'Draw a trend line'
+    update_tool_tip = 'Update trend line'
+    tool_tip = Unicode().tag(sync=True)
     mdi_icon = "mdi-message-draw"
+    line_drawn = CallbackProperty(False)
 
     def __init__(self, viewer, bx=0, by=0, **kwargs):
         super().__init__(viewer, **kwargs)
+        self.tool_tip = self.draw_tool_tip
         self.line_drawn = False
         self.line = None
         self.endpoint = None
@@ -85,7 +90,8 @@ class LineDrawTool(InteractCheckableTool, HasTraits):
             endpoint.enable_move = True
             figure.marks = figure.marks + [endpoint]
             self.endpoint = endpoint
-            self.tool_tip = "Update trend line"
+            self.line_drawn = True
+            self.tool_tip = self.update_tool_tip
 
             # End drawing
             self.deactivate()
@@ -133,6 +139,13 @@ class LineDrawTool(InteractCheckableTool, HasTraits):
         self._follow_cursor = False
         self.viewer.figure.interaction = self._original_interaction
         self.viewer.toolbar.active_tool = None
+
+        # Make sure that we can't end up with the line defined but not the endpoint
+        if self.line is not None and self.endpoint is None:
+            fig = self.viewer.figure
+            fig.marks = [m for m in fig.marks if m != self.line]
+            self.line = None
+            self.tool_tip = self.draw_tool_tip
 
     def close(self):
         super().close()
@@ -182,3 +195,4 @@ class LineDrawTool(InteractCheckableTool, HasTraits):
         figure.marks = [mark for mark in figure.marks if mark not in to_remove]
         self.line = None
         self.endpoint = None
+        self.line_drawn = False

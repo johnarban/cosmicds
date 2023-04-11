@@ -1,6 +1,10 @@
 <template>
   <v-card
     flat
+    light
+    variant="outlined"
+    color="white"
+    class="layer_toggle"
   >
     <v-list-item-group
       multiple
@@ -13,7 +17,9 @@
         inactive
       >
         <template v-slot:default="{ active }">
-          <v-list-item-content>
+          <v-list-item-content
+            class="font-weight-bold"
+          >
             {{ layer.label }}
           </v-list-item-content>
 
@@ -30,3 +36,13 @@
     </v-list-item-group>
   </v-card>
 </template>
+
+<style scoped>
+
+.v-card{
+  border: solid 1px black!important;
+}
+
+</style>
+
+
